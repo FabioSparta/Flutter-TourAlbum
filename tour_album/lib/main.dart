@@ -136,7 +136,7 @@ class _LoginPageState extends State<LoginPage> {
             new Container(
               child: new TextField(
                 controller: _confirmpwFilter,
-                decoration: new InputDecoration(labelText: 'Confirmm Password'),
+                decoration: new InputDecoration(labelText: 'Confirm Password'),
                 obscureText: true,
               ),
             )
