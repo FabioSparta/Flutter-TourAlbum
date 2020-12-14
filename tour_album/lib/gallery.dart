@@ -17,7 +17,7 @@ class GalleryPage extends StatelessWidget {
   final GridListDemoType type;
 
   List<_Photo> _photos(BuildContext context) {
-    return [
+    var photos = [
       _Photo(
         assetName: 'places/india_chennai_flower_market.png',
         title: GalleryLocalizations.of(context).placeChennai,
@@ -79,15 +79,12 @@ class GalleryPage extends StatelessWidget {
         subtitle: GalleryLocalizations.of(context).placeFisherman,
       ),
     ];
+    return photos;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: Text(GalleryLocalizations.of(context).demoGridListsTitle),
-      ),
       body: GridView.count(
         restorationId: 'grid_view_demo_grid_offset',
         crossAxisCount: 2,

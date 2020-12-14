@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:tour_album/gallery.dart';
 import 'package:tour_album/home.dart';
 
 void main() => runApp(new MyApp());
@@ -14,7 +13,6 @@ class MyApp extends StatelessWidget {
         routes: {
           '/login': (context) => LoginPage(),
           '/home': (context) => HomePage(),
-          '/gallery': (context) => GalleryPage(),
         });
   }
 }
