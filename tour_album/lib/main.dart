@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:tour_album/gallery.dart';
+import 'package:tour_album/home.dart';
 
 void main() => runApp(new MyApp());
 
@@ -6,10 +8,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
-      title: 'Flutter Simple Login Demo',
-      theme: new ThemeData(primarySwatch: Colors.blue),
-      home: new LoginPage(),
-    );
+        title: 'Tour Album',
+        theme: new ThemeData(primarySwatch: Colors.blue),
+        home: new LoginPage(),
+        routes: {
+          '/login': (context) => LoginPage(),
+          '/home': (context) => HomePage(),
+          '/gallery': (context) => GalleryPage(),
+        });
   }
 }
 
@@ -23,16 +29,19 @@ enum FormType { login, register }
 
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailFilter = new TextEditingController();
+  final TextEditingController _usernameFilter = new TextEditingController();
   final TextEditingController _passwordFilter = new TextEditingController();
   final TextEditingController _confirmpwFilter = new TextEditingController();
   String _email = "";
   String _password = "";
   String _confirm_pw = "";
+  String _username = "";
   FormType _form = FormType
       .login; // our default setting is to login, and we should switch to creating an account when the user chooses to
 
   _LoginPageState() {
     _emailFilter.addListener(_emailListen);
+    _usernameFilter.addListener(_usernameListen);
     _passwordFilter.addListener(_passwordListen);
     _confirmpwFilter.addListener(_confirmpwListen);
   }
@@ -42,6 +51,14 @@ class _LoginPageState extends State<LoginPage> {
       _email = "";
     } else {
       _email = _emailFilter.text;
+    }
+  }
+
+  void _usernameListen() {
+    if (_usernameFilter.text.isEmpty) {
+      _email = "";
+    } else {
+      _username = _usernameFilter.text;
     }
   }
 
@@ -90,7 +107,8 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget _buildBar(BuildContext context) {
     return new AppBar(
-      title: new Text("Simple Login Example"),
+      backgroundColor: Colors.blue,
+      title: new Text("Tour Album"),
       centerTitle: true,
     );
   }
@@ -124,6 +142,12 @@ class _LoginPageState extends State<LoginPage> {
               child: new TextField(
                 controller: _emailFilter,
                 decoration: new InputDecoration(labelText: 'Email'),
+              ),
+            ),
+            new Container(
+              child: new TextField(
+                controller: _usernameFilter,
+                decoration: new InputDecoration(labelText: 'Username'),
               ),
             ),
             new Container(
@@ -188,6 +212,8 @@ class _LoginPageState extends State<LoginPage> {
 
   void _loginPressed() {
     print('The user wants to login with $_email and $_password');
+    //Navigator.push(context,MaterialPageRoute(builder: (context) => HomePage()),);
+    Navigator.of(context).pushReplacementNamed("/home");
   }
 
   void _createAccountPressed() {
