@@ -24,6 +24,7 @@ dependencies:
   flutter:
     sdk: flutter
   custom_navigation_bar: ^0.3.0
+  google_maps_flutter: ^1.0.6
 
   #gallery dependencies
   flutter_gallery: ^2.4.0+20400
