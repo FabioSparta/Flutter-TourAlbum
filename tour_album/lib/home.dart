@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tour_album/gallery_tab.dart';
+import 'package:tour_album/gallery.dart';
 
 import 'gallery.dart';
 
@@ -43,11 +43,6 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
         backgroundColor: Colors.blue,
         title: const Text('BottomNavigationBar Sample'),
       ),
-      /*
-      body: Center(
-        child: _widgetOptions.elementAt(_selectedIndex),
-      ), //need to change body to the one bellow
-      */
       body: IndexedStack(
         index: _selectedIndex,
         children: <Widget>[
@@ -55,7 +50,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
             'Index 0: Map',
             style: optionStyle,
           ),
-          GalleryTab(),
+          GalleryPage(),
           Text(
             'Index 2: Profile',
             style: optionStyle,
