@@ -9,6 +9,9 @@
         android:name="io.flutter.app.FlutterApplication"
         android:label="tour_album"
         android:icon="@mipmap/ic_launcher">
+
+        <uses-permission android:name="android.permission.CAMERA" />
+        
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tour_album/gallery.dart';
+import 'package:tour_album/profile.dart';
 
 import 'gallery.dart';
 
@@ -48,14 +49,11 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
         index: _selectedIndex,
         children: <Widget>[
           Text(
-            'Index 0: Map',
+            'Map',
             style: optionStyle,
           ),
           GalleryPage(),
-          Text(
-            'Index 2: Profile',
-            style: optionStyle,
-          ),
+          UserProfilePage(),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
