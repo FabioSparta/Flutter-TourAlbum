@@ -23,6 +23,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  camera:
+  path_provider:
+  path:
   custom_navigation_bar: ^0.3.0
   google_maps_flutter: ^1.0.6
 

@@ -40,8 +40,9 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.blue,
-        title: const Text('BottomNavigationBar Sample'),
+        backgroundColor: Colors.black,
+        title: const Text('Tour Album', style: TextStyle(color: Colors.blue)),
+        centerTitle: true,
       ),
       body: IndexedStack(
         index: _selectedIndex,

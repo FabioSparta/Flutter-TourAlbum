@@ -46,8 +46,8 @@ class GalleryPage extends StatelessWidget {
       body: GridView.count(
         restorationId: 'grid_view_demo_grid_offset',
         crossAxisCount: 2,
-        mainAxisSpacing: 8,
-        crossAxisSpacing: 8,
+        mainAxisSpacing: 4,
+        crossAxisSpacing: 4,
         padding: const EdgeInsets.all(8),
         childAspectRatio: 1,
         children: _photos(context).map<Widget>((photo) {
@@ -106,7 +106,6 @@ class _GridDemoPhotoItem extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: Image.asset(
         photo.assetName,
-        package: 'flutter_gallery_assets',
         fit: BoxFit.cover,
       ),
     );

@@ -85,8 +85,8 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget _buildBar(BuildContext context) {
     return new AppBar(
-      backgroundColor: Colors.blue,
-      title: new Text("Tour Album"),
+      backgroundColor: Colors.black,
+      title: const Text('Tour Album', style: TextStyle(color: Colors.blue)),
       centerTitle: true,
     );
   }
