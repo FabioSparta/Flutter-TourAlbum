@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tour_album/gallery_tab.dart';
 
 import 'gallery.dart';
 
@@ -28,20 +29,6 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   int _selectedIndex = 0;
   static const TextStyle optionStyle =
       TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
-  static const List<Widget> _widgetOptions = <Widget>[
-    Text(
-      'Index 0: Map',
-      style: optionStyle,
-    ),
-    Text(
-      'Index 1: Gallery',
-      style: optionStyle,
-    ),
-    Text(
-      'Index 2: Profile',
-      style: optionStyle,
-    ),
-  ];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -68,7 +55,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
             'Index 0: Map',
             style: optionStyle,
           ),
-          GalleryPage(),
+          GalleryTab(),
           Text(
             'Index 2: Profile',
             style: optionStyle,
