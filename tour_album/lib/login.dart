@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatefulWidget {
+  final FormType initial_type;
+  LoginPage({Key key, @required this.initial_type}) : super(key: key);
+
   @override
   State<StatefulWidget> createState() => new _LoginPageState();
 }
@@ -72,6 +75,13 @@ class _LoginPageState extends State<LoginPage> {
     return new Scaffold(
       appBar: _buildBar(context),
       body: new Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+              begin: Alignment.bottomLeft,
+              end: Alignment.topRight,
+              stops: [0.1, 0.3, 1],
+              colors: [Colors.deepPurple, Colors.purple, Colors.blue]),
+        ),
         padding: EdgeInsets.all(16.0),
         child: new Column(
           children: <Widget>[
