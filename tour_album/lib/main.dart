@@ -16,8 +16,13 @@ class MyApp extends StatelessWidget {
         theme: new ThemeData(primarySwatch: Colors.blue),
         home: new FirstPage(),
         routes: {
-          '/login': (context) => LoginPage(),
+          '/login': (context) => LoginPage(
+                arguments: FormType.login,
+                initial_type: null,
+              ),
           '/home': (context) => HomePage(),
         });
   }
 }
+
+enum FormType { login, register }

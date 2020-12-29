@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 class LoginPage extends StatefulWidget {
   final FormType initial_type;
-  LoginPage({Key key, @required this.initial_type}) : super(key: key);
+  LoginPage({Key key, @required this.initial_type, arguments})
+      : super(key: key);
 
   @override
   State<StatefulWidget> createState() => new _LoginPageState();

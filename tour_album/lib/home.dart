@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tour_album/camera.dart';
 import 'package:tour_album/gallery.dart';
 import 'package:tour_album/profile.dart';
 
@@ -27,7 +28,7 @@ class MyStatefulWidget extends StatefulWidget {
 
 /// This is the private State class that goes with MyStatefulWidget.
 class _MyStatefulWidgetState extends State<MyStatefulWidget> {
-  int _selectedIndex = 0;
+  int _selectedIndex = 3;
   static const TextStyle optionStyle =
       TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
 
@@ -48,6 +49,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
       body: IndexedStack(
         index: _selectedIndex,
         children: <Widget>[
+          CameraScreen(),
           Text(
             'Map',
             style: optionStyle,
@@ -62,6 +64,13 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
         selectedItemColor: Colors.amber[700],
         onTap: _onItemTapped,
         items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.camera_alt_outlined,
+              color: Colors.blue,
+            ),
+            label: 'Camera',
+          ),
           BottomNavigationBarItem(
             icon: Icon(
               Icons.map,
