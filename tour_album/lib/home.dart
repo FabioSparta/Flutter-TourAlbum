@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+
 import 'package:tour_album/camera.dart';
 import 'package:tour_album/gallery.dart';
+import 'package:tour_album/map.dart';
+import 'package:tour_album/google_map.dart';
 import 'package:tour_album/profile.dart';
 
 import 'gallery.dart';
@@ -50,10 +53,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
         index: _selectedIndex,
         children: <Widget>[
           CameraScreen(),
-          Text(
-            'Map',
-            style: optionStyle,
-          ),
+          GoogleMapScreen(),
           GalleryPage(),
           UserProfilePage(),
         ],
