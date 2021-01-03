@@ -23,15 +23,19 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  #
+  #Firebase
   firebase_core: "^0.5.3"
   firebase_auth: "^0.18.4"
+  firebase_database: "^4.4.0"
+  #
+  #Camera
   camera: ^0.5.8+2
   esys_flutter_share: ^1.0.2
-  #for camera
   path_provider: ^1.6.24
   image_picker: ^0.6.7+17
-  #
   gallery_saver: ^2.0.1
+  #
   #flutter map
   flutter_map: ^0.10.1+1
   #
@@ -39,9 +43,11 @@ dependencies:
   google_maps_flutter: ^1.0.6
   location: ^3.0.2
   #
-  #for asking permissions
+  #Asking permissions
   permission_handler: ^5.0.1+1
   #
+  #toast
+  fluttertoast: ^7.1.6
 
   #gallery dependencies
   #flutter_gallery: ^2.4.0+20400
