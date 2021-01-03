@@ -25,7 +25,7 @@ class FirstPageContent extends State<FirstPage> {
 
   Widget build_title() {
     return new Container(
-        padding: EdgeInsets.all(100.0),
+        padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.1),
         child: Center(
           child: Text(
             'Tour Album',
@@ -39,13 +39,14 @@ class FirstPageContent extends State<FirstPage> {
 
   Widget build_buttons(BuildContext context) {
     return new Container(
-      padding: EdgeInsets.all(70.0),
+      padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.08),
       child: Column(children: <Widget>[
         Padding(
-            padding: EdgeInsets.only(top: 40),
+            padding:
+                EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.06),
             child: ButtonTheme(
-                minWidth: 320,
-                height: 40,
+                minWidth: MediaQuery.of(context).size.width * 0.8,
+                height: MediaQuery.of(context).size.height * 0.06,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(18.0),
                   //side: BorderSide(color: Colors.blue)
@@ -54,7 +55,7 @@ class FirstPageContent extends State<FirstPage> {
                   child: new Text(
                     "Continue Without Account",
                     style: TextStyle(
-                      fontSize: 25,
+                      fontSize: 22,
                       color: Colors.white,
                     ),
                   ),
@@ -62,10 +63,11 @@ class FirstPageContent extends State<FirstPage> {
                   onPressed: Continue,
                 ))),
         Padding(
-            padding: EdgeInsets.only(top: 40),
+            padding:
+                EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.06),
             child: ButtonTheme(
-              minWidth: 320,
-              height: 40,
+              minWidth: MediaQuery.of(context).size.width * 0.8,
+              height: MediaQuery.of(context).size.height * 0.06,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(18.0),
                 //side: BorderSide(color: Colors.blue)
@@ -74,7 +76,7 @@ class FirstPageContent extends State<FirstPage> {
                 child: new Text(
                   "Sign Up",
                   style: TextStyle(
-                    fontSize: 25,
+                    fontSize: 24,
                     color: Colors.white,
                   ),
                 ),
@@ -83,10 +85,11 @@ class FirstPageContent extends State<FirstPage> {
               ),
             )),
         Padding(
-            padding: EdgeInsets.only(top: 40),
+            padding:
+                EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.06),
             child: ButtonTheme(
-              minWidth: 320,
-              height: 40,
+              minWidth: MediaQuery.of(context).size.width * 0.8,
+              height: MediaQuery.of(context).size.height * 0.06,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(18.0),
                 //side: BorderSide(color: Colors.blue)
@@ -95,7 +98,7 @@ class FirstPageContent extends State<FirstPage> {
                 child: new Text(
                   "Login",
                   style: TextStyle(
-                    fontSize: 25,
+                    fontSize: 24,
                     color: Colors.white,
                   ),
                 ),
@@ -113,6 +116,8 @@ class FirstPageContent extends State<FirstPage> {
   }
 
   void SignUp() {
+    //Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage());
+
     Navigator.of(context)
         .pushReplacementNamed("/login", arguments: FormType.register);
   }

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
 class UserProfilePage extends StatelessWidget {
-  final String _fullName = "Nick Frost";
-  final String _status = "Software Developer";
+  final String _fullName = "Unknown";
+  final String _status = "User Status";
   final String _bio =
       "\"Hi, I am a Freelance developer working for hourly basis. If you wants to contact me to build your product leave a message.\"";
-  final String _followers = "173";
-  final String _posts = "24";
-  final String _scores = "450";
+  final String _locations = "???";
+  final String _achievements = "???";
+  final String _friends = "???";
 
   Widget _buildCoverImage(Size screenSize) {
     return Container(
@@ -110,9 +110,9 @@ class UserProfilePage extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: <Widget>[
-          _buildStatItem("Achievements", _posts),
-          _buildStatItem("Friends", _scores),
-          _buildStatItem("Visited Locations", _followers),
+          _buildStatItem("Achievements", _achievements),
+          _buildStatItem("Friends", _friends),
+          _buildStatItem("Visited Locations", _locations),
         ],
       ),
     );
@@ -141,7 +141,7 @@ class UserProfilePage extends StatelessWidget {
     );
   }
 
-  Widget _buildGetInTouch(BuildContext context) {
+  Widget _buildChangedPicture(BuildContext context) {
     return Container(
       color: Theme.of(context).scaffoldBackgroundColor,
       padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
@@ -157,6 +157,33 @@ class UserProfilePage extends StatelessWidget {
             child: Center(
               child: Text(
                 "Change Picture",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+    Widget _buildLogout(BuildContext context) {
+    return Container(
+      color: Theme.of(context).scaffoldBackgroundColor,
+      padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+      child: Expanded(
+        child: InkWell(
+          onTap: () => print("followed"),
+          child: Container(
+            height: 40.0,
+            decoration: BoxDecoration(
+              border: Border.all(),
+              color: Color(0xFF404A5C),
+            ),
+            child: Center(
+              child: Text(
+                "Logout",
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.w600,
@@ -240,9 +267,11 @@ class UserProfilePage extends StatelessWidget {
                   _buildBio(context),
                   _buildSeparator(screenSize),
                   SizedBox(height: 10.0),
-                  _buildGetInTouch(context),
+                  _buildChangedPicture(context),
                   SizedBox(height: 8.0),
                   _buildButtons(),
+                  SizedBox(height: 8.0),
+                  _buildLogout(context),
                 ],
               ),
             ),

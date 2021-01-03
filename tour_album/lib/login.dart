@@ -1,4 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:firebase_database/firebase_database.dart';
+
+FirebaseAuth auth = FirebaseAuth.instance;
 
 class LoginPage extends StatefulWidget {
   final FormType initial_type;
@@ -6,7 +12,7 @@ class LoginPage extends StatefulWidget {
       : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => new _LoginPageState();
+  State<StatefulWidget> createState() => new _LoginPageState(initial_type);
 }
 
 class _LoginPageState extends State<LoginPage> {
@@ -18,10 +24,24 @@ class _LoginPageState extends State<LoginPage> {
   String _password = "";
   String _confirm_pw = "";
   String _username = "";
-  FormType _form = FormType
-      .login; // our default setting is to login, and we should switch to creating an account when the user chooses to
+  FormType _form;
 
-  _LoginPageState() {
+  //FormType _form = FormType
+  // .login; // our default setting is to login, and we should switch to creating an account when the user chooses to
+
+  _LoginPageState(FormType initial_type) {
+    if (initial_type == FormType.register) {
+      _form = FormType.register;
+      print(initial_type);
+      print(_form);
+      _formChange();
+    } else {
+      _form = FormType.login;
+      print(initial_type);
+      print(_form);
+      _formChange();
+    }
+
     _emailFilter.addListener(_emailListen);
     _usernameFilter.addListener(_usernameListen);
     _passwordFilter.addListener(_passwordListen);
@@ -197,20 +217,94 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  // These functions can self contain any user auth logic required, they all have access to _email and _password
-
-  void _loginPressed() {
+  //LOGIN PRESSED
+  Future<void> _loginPressed() async {
     print('The user wants to login with $_email and $_password');
     //Navigator.push(context,MaterialPageRoute(builder: (context) => HomePage()),);
-    Navigator.of(context).pushReplacementNamed("/home");
+    try {
+      await Firebase.initializeApp();
+      UserCredential userCredential =
+          await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: _email,
+        password: _password,
+      );
+      Navigator.of(context).pushReplacementNamed("/home");
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
+        print('No user found for that email.');
+        _toast("No user found for that email.", Colors.white, Colors.red);
+      } else if (e.code == 'wrong-password') {
+        print('Wrong password provided for that user.');
+        _toast(
+            "Wrong password provided for that user.", Colors.white, Colors.red);
+      }
+    }
   }
 
-  void _createAccountPressed() {
-    print('The user wants to create an accoutn with $_email and $_password');
+  // SIGN UP PRESSED
+  Future<void> _createAccountPressed() async {
+    print('The user wants to create an account with $_email and $_password');
+    //INPUT VERIFICATIONS
+    if (_email == "" ||
+        _username == "" ||
+        _password == "" ||
+        _confirm_pw == "") {
+      _toast("All entries must be filled.", Colors.white, Colors.red);
+    } else if (_password != _confirm_pw) {
+      _toast("Passwords do not match.", Colors.white, Colors.red);
+    } else {
+      //FIREBASE
+      try {
+        await Firebase.initializeApp();
+
+        //FIREBASE AUTHENTICATION
+        UserCredential userCredential =
+            await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: _email,
+          password: _password,
+        );
+
+        //REALTIME DATABASE
+        // NECESSARY TO CHANGE _email to hashed email, because '.' is not allowed in realtime db
+        final databaseReference = FirebaseDatabase.instance.reference();
+        databaseReference
+            .child("users")
+            .child(_email)
+            .set({'username': _username});
+
+        //USER FEEDBACK
+        print("Signed Up Sucessfully.");
+        _toast("Signed Up Successfully", Colors.black, Colors.green);
+        _form == FormType.login;
+        _formChange();
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'weak-password')
+          print('The password provided is too weak.');
+        else if (e.code == 'email-already-in-use') {
+          print('The account already exists for that email.');
+          _toast("The account already exists for that email.", Colors.white,
+              Colors.red);
+        }
+      } catch (e) {
+        print(e);
+      }
+    }
+  }
+
+  void _toast(txt, txtColor, backColor) {
+    Fluttertoast.showToast(
+        msg: txt,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: backColor,
+        textColor: txtColor,
+        fontSize: 14.0);
   }
 
   void _passwordReset() {
     print("The user wants a password reset request sent to $_email");
+    _toast("Not implemented", Colors.white, Colors.black);
   }
 }
 
