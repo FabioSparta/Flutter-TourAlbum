@@ -17,7 +17,7 @@ class FirstPageContent extends State<FirstPage> {
             stops: [0.1, 0.3, 1],
             colors: [Colors.deepPurple, Colors.purple, Colors.blue]),
       ),
-      child: new Column(
+      child: new ListView(
         children: <Widget>[build_title(), build_buttons(context)],
       ),
     ));
@@ -41,73 +41,59 @@ class FirstPageContent extends State<FirstPage> {
     return new Container(
       padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.08),
       child: Column(children: <Widget>[
-        Padding(
-            padding:
-                EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.06),
-            child: ButtonTheme(
-                minWidth: MediaQuery.of(context).size.width * 0.8,
-                height: MediaQuery.of(context).size.height * 0.06,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(18.0),
-                  //side: BorderSide(color: Colors.blue)
-                ),
-                child: RaisedButton(
-                  child: new Text(
-                    "Continue Without Account",
-                    style: TextStyle(
-                      fontSize: 22,
-                      color: Colors.white,
-                    ),
-                  ),
-                  color: Colors.black,
-                  onPressed: Continue,
-                ))),
-        Padding(
-            padding:
-                EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.06),
-            child: ButtonTheme(
-              minWidth: MediaQuery.of(context).size.width * 0.8,
-              height: MediaQuery.of(context).size.height * 0.06,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(18.0),
-                //side: BorderSide(color: Colors.blue)
+        createButton(
+            new Text(
+              "Continue Without Account",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 19,
+                color: Colors.white,
               ),
-              child: RaisedButton(
-                child: new Text(
-                  "Sign Up",
-                  style: TextStyle(
-                    fontSize: 24,
-                    color: Colors.white,
-                  ),
-                ),
-                color: Colors.black,
-                onPressed: SignUp,
+            ),
+            context,
+            Continue),
+        createButton(
+            new Text(
+              "Sign Up",
+              style: TextStyle(
+                fontSize: 24,
+                color: Colors.white,
               ),
-            )),
-        Padding(
-            padding:
-                EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.06),
-            child: ButtonTheme(
-              minWidth: MediaQuery.of(context).size.width * 0.8,
-              height: MediaQuery.of(context).size.height * 0.06,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(18.0),
-                //side: BorderSide(color: Colors.blue)
+            ),
+            context,
+            SignUp),
+        createButton(
+            new Text(
+              "Login",
+              style: TextStyle(
+                fontSize: 24,
+                color: Colors.white,
               ),
-              child: RaisedButton(
-                child: new Text(
-                  "Login",
-                  style: TextStyle(
-                    fontSize: 24,
-                    color: Colors.white,
-                  ),
-                ),
-                color: Colors.black,
-                onPressed: Login,
-              ),
-            )),
+            ),
+            context,
+            Login),
       ]),
     );
+  }
+
+  Padding createButton(
+      Widget text, BuildContext context, void Function() onPressed) {
+    //to create the buttons for the main screen
+    return Padding(
+        padding:
+            EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.06),
+        child: ButtonTheme(
+            minWidth: MediaQuery.of(context).size.width * 0.6,
+            height: MediaQuery.of(context).size.height * 0.05,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(18.0),
+              //side: BorderSide(color: Colors.blue)
+            ),
+            child: RaisedButton(
+              child: text,
+              color: Colors.black,
+              onPressed: onPressed,
+            )));
   }
 
   void Continue() {
@@ -118,13 +104,11 @@ class FirstPageContent extends State<FirstPage> {
   void SignUp() {
     //Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage());
 
-    Navigator.of(context)
-        .pushReplacementNamed("/login", arguments: FormType.register);
+    Navigator.of(context).pushNamed("/login", arguments: FormType.register);
   }
 
   void Login() {
-    Navigator.of(context)
-        .pushReplacementNamed("/login", arguments: FormType.login);
+    Navigator.of(context).pushNamed("/login", arguments: FormType.login);
   }
 }
 

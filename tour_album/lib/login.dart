@@ -104,7 +104,7 @@ class _LoginPageState extends State<LoginPage> {
               colors: [Colors.deepPurple, Colors.purple, Colors.blue]),
         ),
         padding: EdgeInsets.all(16.0),
-        child: new Column(
+        child: new ListView(
           children: <Widget>[
             _buildTextFields(),
             _buildButtons(),
