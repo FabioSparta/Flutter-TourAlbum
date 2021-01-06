@@ -237,6 +237,8 @@ class _LoginPageState extends State<LoginPage> {
         print('Wrong password provided for that user.');
         _toast(
             "Wrong password provided for that user.", Colors.white, Colors.red);
+      } else {
+        _toast("Some connection error occurred..", Colors.white, Colors.red);
       }
     }
   }
@@ -286,6 +288,7 @@ class _LoginPageState extends State<LoginPage> {
               Colors.red);
         }
       } catch (e) {
+        _toast("Some connection error occurred.", Colors.white, Colors.red);
         print(e);
       }
     }
