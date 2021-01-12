@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:qrscan/qrscan.dart' as scanner;
+import 'dart:typed_data';
 
 class UserProfilePage extends StatelessWidget {
   final String _fullName = "Unknown";
@@ -168,7 +170,8 @@ class UserProfilePage extends StatelessWidget {
       ),
     );
   }
-    Widget _buildLogout(BuildContext context) {
+
+  Widget _buildLogout(BuildContext context) {
     return Container(
       color: Theme.of(context).scaffoldBackgroundColor,
       padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
@@ -196,14 +199,19 @@ class UserProfilePage extends StatelessWidget {
     );
   }
 
-  Widget _buildButtons() {
+  Widget _buildButtons(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: Row(
         children: <Widget>[
           Expanded(
             child: InkWell(
-              onTap: () => print("followed"),
+              onTap: () async {
+                Uint8List result =
+                    await scanner.generateBarCode("Sou eu o Gervaldo");
+                await showDialog(
+                    context: context, builder: (result) => ImageDialog());
+              },
               child: Container(
                 height: 40.0,
                 decoration: BoxDecoration(
@@ -225,7 +233,9 @@ class UserProfilePage extends StatelessWidget {
           SizedBox(width: 10.0),
           Expanded(
             child: InkWell(
-              onTap: () => print("Message"),
+              onTap: () async {
+                String cameraScanResult = await scanner.scan();
+              },
               child: Container(
                 height: 40.0,
                 decoration: BoxDecoration(
@@ -277,6 +287,21 @@ class UserProfilePage extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class ImageDialog extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      child: Container(
+        width: 200,
+        height: 200,
+        decoration: BoxDecoration(
+            image: DecorationImage(
+                image: ExactAssetImage('assets/tamas.jpg'), fit: BoxFit.cover)),
       ),
     );
   }

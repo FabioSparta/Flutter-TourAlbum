@@ -48,6 +48,9 @@ dependencies:
   #
   #toast
   fluttertoast: ^7.1.6
+  #
+  #Qr code scaner
+  qrscan: ^0.2.21
 
   #gallery dependencies
   #flutter_gallery: ^2.4.0+20400

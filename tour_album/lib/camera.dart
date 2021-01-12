@@ -18,8 +18,7 @@ class _CameraScreenState extends State<CameraScreen> {
   @override
   Widget build(BuildContext context) {
     //create layout for the app
-    return MaterialApp(
-        home: Scaffold(
+    return Scaffold(
       body: Container(
         color: Colors.white,
         child: Column(
@@ -27,6 +26,8 @@ class _CameraScreenState extends State<CameraScreen> {
             Flexible(
               flex: 1,
               child: Container(
+                decoration:
+                    BoxDecoration(border: Border.all(color: Colors.black)),
                 child: SizedBox.expand(
                   child: RaisedButton(
                     color: Colors.blue,
@@ -40,21 +41,23 @@ class _CameraScreenState extends State<CameraScreen> {
             ),
             Flexible(
               child: Container(
+                  decoration:
+                      BoxDecoration(border: Border.all(color: Colors.black)),
                   child: SizedBox.expand(
-                child: RaisedButton(
-                  color: Colors.white,
-                  onPressed: _recordVideo,
-                  child: Text(secondButtonText,
-                      style: TextStyle(
-                          fontSize: textSize, color: Colors.blueGrey)),
-                ),
-              )),
+                    child: RaisedButton(
+                      color: Colors.blue,
+                      onPressed: _recordVideo,
+                      child: Text(secondButtonText,
+                          style: TextStyle(
+                              fontSize: textSize, color: Colors.white)),
+                    ),
+                  )),
               flex: 1,
             )
           ],
         ),
       ),
-    ));
+    );
   }
 
   //function to get the image from the camera
