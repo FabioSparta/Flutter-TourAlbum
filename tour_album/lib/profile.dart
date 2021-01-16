@@ -210,7 +210,7 @@ class UserProfilePage extends StatelessWidget {
                 Uint8List result =
                     await scanner.generateBarCode("Sou eu o Gervaldo");
                 await showDialog(
-                    context: context, builder: (result) => ImageDialog());
+                    context: context, builder: (_) => ImageDialog());
               },
               child: Container(
                 height: 40.0,
@@ -279,7 +279,7 @@ class UserProfilePage extends StatelessWidget {
                   SizedBox(height: 10.0),
                   _buildChangedPicture(context),
                   SizedBox(height: 8.0),
-                  _buildButtons(),
+                  _buildButtons(context),
                   SizedBox(height: 8.0),
                   _buildLogout(context),
                 ],
