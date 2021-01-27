@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'global_vars.dart' as gv;
 
 FirebaseAuth auth = FirebaseAuth.instance;
 
@@ -231,6 +232,7 @@ class _LoginPageState extends State<LoginPage> {
         email: _email,
         password: _password,
       );
+      gv.email = _email;
       Navigator.of(context).pushReplacementNamed("/home");
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
