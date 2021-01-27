@@ -54,16 +54,6 @@ class FirstPageContent extends State<FirstPage> {
             Continue),
         createButton(
             new Text(
-              "Sign Up",
-              style: TextStyle(
-                fontSize: 24,
-                color: Colors.white,
-              ),
-            ),
-            context,
-            SignUp),
-        createButton(
-            new Text(
               "Login",
               style: TextStyle(
                 fontSize: 24,
@@ -99,12 +89,6 @@ class FirstPageContent extends State<FirstPage> {
   void Continue() {
     print('Clicked continue');
     Navigator.of(context).pushReplacementNamed("/home");
-  }
-
-  void SignUp() {
-    //Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage());
-
-    Navigator.of(context).pushNamed("/login", arguments: FormType.register);
   }
 
   void Login() {

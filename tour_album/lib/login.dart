@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -244,7 +247,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   // SIGN UP PRESSED
-  Future<void> _createAccountPressed() async {
+  _createAccountPressed() async {
     print('The user wants to create an account with $_email and $_password');
     //INPUT VERIFICATIONS
     if (_email == "" ||
@@ -255,7 +258,7 @@ class _LoginPageState extends State<LoginPage> {
     } else if (_password != _confirm_pw) {
       _toast("Passwords do not match.", Colors.white, Colors.red);
     } else {
-      //FIREBASE
+      //AUTHENTICATION
       try {
         await Firebase.initializeApp();
 
@@ -266,13 +269,19 @@ class _LoginPageState extends State<LoginPage> {
           password: _password,
         );
 
+        //FIREBASE
         //REALTIME DATABASE
-        // NECESSARY TO CHANGE _email to hashed email, because '.' is not allowed in realtime db
-        final databaseReference = FirebaseDatabase.instance.reference();
-        databaseReference
+        FirebaseDatabase(
+                databaseURL:
+                    'https://touralbum2-39c64-default-rtdb.europe-west1.firebasedatabase.app/')
+            .reference()
             .child("users")
-            .child(_email)
-            .set({'username': _username});
+            .child(md5.convert(utf8.encode(_email)).toString())
+            .set({'username': _username, 'num_friends': 0}).then((onValue) {
+          print('Transaction  committed.');
+        }).catchError((onError) {
+          print("error called " + onError.toString());
+        });
 
         //USER FEEDBACK
         print("Signed Up Sucessfully.");
@@ -280,9 +289,11 @@ class _LoginPageState extends State<LoginPage> {
         _form == FormType.login;
         _formChange();
       } on FirebaseAuthException catch (e) {
-        if (e.code == 'weak-password')
+        if (e.code == 'weak-password') {
           print('The password provided is too weak.');
-        else if (e.code == 'email-already-in-use') {
+          _toast(
+              "The password provided is too weak.", Colors.white, Colors.red);
+        } else if (e.code == 'email-already-in-use') {
           print('The account already exists for that email.');
           _toast("The account already exists for that email.", Colors.white,
               Colors.red);
@@ -293,6 +304,8 @@ class _LoginPageState extends State<LoginPage> {
       }
     }
   }
+
+  Future<void> _authentication() async {}
 
   void _toast(txt, txtColor, backColor) {
     Fluttertoast.showToast(

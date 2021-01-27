@@ -25,9 +25,11 @@ dependencies:
     sdk: flutter
   #
   #Firebase
-  firebase_core: "^0.5.3"
-  firebase_auth: "^0.18.4"
-  firebase_database: "^4.4.0"
+  firebase_core: "^0.7.0"
+  firebase_auth: "^0.20.0+1"
+  firebase_database: "^6.0.0"
+  intl: ^0.16.1
+  crypto: ^2.1.5
   #
   #Camera
   camera: ^0.5.8+2
