@@ -47,15 +47,3 @@ class MyApp extends StatelessWidget {
 }
 
 enum FormType { login, register }
-
-/* return new MaterialApp(
-              title: 'Tour Album',
-              theme: new ThemeData(primarySwatch: Colors.blue),
-              home: new FirstPage(),
-              routes: {
-                '/login': (context) => LoginPage(
-                      arguments: FormType.login,
-                      initial_type: null,
-                    ),
-                '/home': (context) => HomePage(),
-              }); */

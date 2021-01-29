@@ -2,7 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:convert';
+
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:crypto/crypto.dart';
+import 'global_vars.dart' as gv;
 
 enum GridListDemoType {
   imageOnly,
@@ -15,50 +20,51 @@ class GalleryPage extends StatelessWidget {
 
   final GridListDemoType type;
 
-  List<_Photo> _photos(BuildContext context) {
-    return [
-      _Photo(
-        assetName: 'images/a.jpg',
-        title: "a",
-        subtitle: "aa",
-      ),
-      _Photo(
-        assetName: 'images/b.jpg',
-        title: "b",
-        subtitle: "bb",
-      ),
-      _Photo(
-        assetName: 'images/c.jpg',
-        title: "c",
-        subtitle: "cc",
-      ),
-      _Photo(
-        assetName: 'images/d.jpg',
-        title: "d",
-        subtitle: "dd",
-      ),
-    ];
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: GridView.count(
-        restorationId: 'grid_view_demo_grid_offset',
-        crossAxisCount: 2,
-        mainAxisSpacing: 4,
-        crossAxisSpacing: 4,
-        padding: const EdgeInsets.all(8),
-        childAspectRatio: 1,
-        children: _photos(context).map<Widget>((photo) {
-          return _GridDemoPhotoItem(
-            photo: photo,
-            tileStyle: type,
-          );
-        }).toList(),
-      ),
-    );
+    return createGallery(type);
   }
+}
+
+Scaffold createGallery(GridListDemoType type) {
+  final storageRef = FirebaseStorage.instance
+      .ref()
+      .child(md5.convert(utf8.encode(gv.email)).toString())
+      .child('gallery');
+
+  return Scaffold(
+    body: FutureBuilder(
+        future: storageRef.listAll(),
+        builder: (context, snapshot) {
+          snapshot.data.items.forEach((Reference ref) {
+            print('Found file: $ref');
+          });
+
+          //NetworkImage(url)
+
+          return Scaffold(
+            body: GridView.count(
+              restorationId: 'grid_view_demo_grid_offset',
+              crossAxisCount: 2,
+              mainAxisSpacing: 4,
+              crossAxisSpacing: 4,
+              padding: const EdgeInsets.all(8),
+              childAspectRatio: 1,
+              children: snapshot.data.items.map<Widget>((photo) {
+                return FutureBuilder(
+                    future: photo.getDownloadURL(),
+                    builder: (context2, snap) {
+                      print(snap.data.toString());
+                      return _GridDemoPhotoItem(
+                        url: snap.data,
+                        tileStyle: type,
+                      );
+                    });
+              }).toList(),
+            ),
+          );
+        }),
+  );
 }
 
 class _Photo {
@@ -92,11 +98,11 @@ class _GridTitleText extends StatelessWidget {
 class _GridDemoPhotoItem extends StatelessWidget {
   _GridDemoPhotoItem({
     Key key,
-    @required this.photo,
+    @required this.url,
     @required this.tileStyle,
   }) : super(key: key);
 
-  _Photo photo;
+  String url;
   GridListDemoType tileStyle;
 
   @override
@@ -104,9 +110,15 @@ class _GridDemoPhotoItem extends StatelessWidget {
     final Widget image = Material(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
       clipBehavior: Clip.antiAlias,
-      child: Image.asset(
-        photo.assetName,
-        fit: BoxFit.cover,
+      child: Container(
+        width: 100,
+        height: 100,
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: NetworkImage(url),
+            fit: BoxFit.fill,
+          ),
+        ),
       ),
     );
     tileStyle = GridListDemoType.footer;
@@ -122,7 +134,7 @@ class _GridDemoPhotoItem extends StatelessWidget {
             ),
             clipBehavior: Clip.antiAlias,
             child: GridTileBar(
-              title: _GridTitleText(photo.title),
+              title: _GridTitleText("title"),
               backgroundColor: Colors.black45,
             ),
           ),
@@ -138,8 +150,8 @@ class _GridDemoPhotoItem extends StatelessWidget {
             clipBehavior: Clip.antiAlias,
             child: GridTileBar(
               backgroundColor: Colors.black45,
-              title: _GridTitleText(photo.title),
-              subtitle: _GridTitleText(photo.subtitle),
+              title: _GridTitleText("title"),
+              subtitle: _GridTitleText("subtitle/description"),
             ),
           ),
           child: image,

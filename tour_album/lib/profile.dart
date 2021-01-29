@@ -3,6 +3,7 @@ import 'package:qrscan/qrscan.dart' as scanner;
 import 'dart:typed_data';
 
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:crypto/crypto.dart';
 import 'dart:convert';
 import 'global_vars.dart' as gv;
@@ -16,6 +17,11 @@ class UserProfilePage extends StatelessWidget {
 }
 
 Scaffold CreateProfile(BuildContext context, Size screenSize) {
+  final storageRef = FirebaseStorage.instance
+      .ref()
+      .child(md5.convert(utf8.encode(gv.email)).toString())
+      .child('profile_pic.jpg');
+
   final dbRef = FirebaseDatabase(
           databaseURL:
               'https://touralbum2-39c64-default-rtdb.europe-west1.firebasedatabase.app/')
@@ -29,36 +35,41 @@ Scaffold CreateProfile(BuildContext context, Size screenSize) {
         builder: (context, snap) {
           Map data = snap.data.snapshot.value;
           final String _status = "User Status";
-          final String _locations = "???";
-          final String _achievements = "???";
+          final String _locations = "...";
+          final String _achievements = "...";
 
-          return Stack(
-            children: <Widget>[
-              _buildCoverImage(screenSize),
-              SafeArea(
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: <Widget>[
-                      SizedBox(height: screenSize.height / 6),
-                      _buildProfileImage(),
-                      _buildFullName(data['username']),
-                      _buildStatus(context, _status),
-                      _buildStatContainer(_achievements,
-                          data['num_friends'].toString(), _locations),
-                      _buildBio(context),
-                      _buildSeparator(screenSize),
-                      SizedBox(height: 10.0),
-                      _buildChangedPicture(context),
-                      SizedBox(height: 8.0),
-                      _buildButtons(context),
-                      SizedBox(height: 8.0),
-                      _buildLogout(context),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          );
+          return FutureBuilder(
+              future: storageRef.getDownloadURL(),
+              builder: (context, snapshot) {
+                return Stack(
+                  children: <Widget>[
+                    _buildCoverImage(screenSize),
+                    SafeArea(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: <Widget>[
+                            SizedBox(height: screenSize.height / 6),
+                            _buildProfileImage(
+                                snapshot.data), //using Storage for image
+                            _buildFullName(data['username']),
+                            _buildStatus(context, _status),
+                            _buildStatContainer(_achievements,
+                                data['num_friends'].toString(), _locations),
+                            _buildBio(context),
+                            _buildSeparator(screenSize),
+                            SizedBox(height: 10.0),
+                            _buildChangedPicture(context),
+                            SizedBox(height: 8.0),
+                            _buildButtons(context),
+                            SizedBox(height: 8.0),
+                            _buildLogout(context),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              });
         }),
   );
 }
@@ -75,14 +86,14 @@ Widget _buildCoverImage(Size screenSize) {
   );
 }
 
-Widget _buildProfileImage() {
+Widget _buildProfileImage(url) {
   return Center(
     child: Container(
       width: 140.0,
       height: 140.0,
       decoration: BoxDecoration(
         image: DecorationImage(
-          image: AssetImage('images/b.jpg'),
+          image: url == null ? AssetImage('images/b.jpg') : NetworkImage(url),
           fit: BoxFit.cover,
         ),
         borderRadius: BorderRadius.circular(80.0),

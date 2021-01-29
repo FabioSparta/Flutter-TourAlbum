@@ -1,1 +1,2 @@
 String email;
+String username;
