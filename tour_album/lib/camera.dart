@@ -1,8 +1,11 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:convert';
 
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:geocoder/geocoder.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:gallery_saver/gallery_saver.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -27,6 +30,29 @@ class _CameraScreenState extends State<CameraScreen> {
   String albumName = 'TourAlbum';
   String userAddress = 'Undefined';
   double textSize = 20;
+  Position _position;
+  StreamSubscription<Position> _streamSubscription;
+  Address _address;
+
+  @override
+  void initState() {
+    super.initState();
+    var locationOptions =
+        LocationOptions(accuracy: LocationAccuracy.high, distanceFilter: 10);
+    _streamSubscription = Geolocator()
+        .getPositionStream(locationOptions)
+        .listen((Position position) {
+      setState(() {
+        print(position);
+        _position = position;
+
+        final coordinates =
+            new Coordinates(position.latitude, position.longitude);
+        convertCoordinatesToAddress(coordinates)
+            .then((value) => _address = value);
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -104,7 +130,7 @@ class _CameraScreenState extends State<CameraScreen> {
               .child("gallery")
               .child(md5.convert(utf8.encode(fileName)).toString())
               .set({
-            'location': userAddress,
+            'location': "${_address?.addressLine ?? 'undefined'}",
             'time': DateFormat('dd-MM-yyyy HH:mm:ss', 'en_US')
                 .format(now)
                 .toString(),
@@ -130,6 +156,18 @@ class _CameraScreenState extends State<CameraScreen> {
         .child(md5.convert(utf8.encode(gv.email)).toString())
         .child('gallery/$fileName');
     storageRef.putFile(recordedImage);
+  }
+
+  Future<Address> convertCoordinatesToAddress(Coordinates coordinates) async {
+    var addresses =
+        await Geocoder.local.findAddressesFromCoordinates(coordinates);
+    return addresses.first;
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _streamSubscription.cancel();
   }
 
   void _recordVideo() async {
