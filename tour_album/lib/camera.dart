@@ -1,8 +1,12 @@
 import 'dart:io';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:gallery_saver/gallery_saver.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:crypto/crypto.dart';
+import 'global_vars.dart' as gv;
 
 class CameraScreen extends StatefulWidget {
   @override
@@ -10,6 +14,11 @@ class CameraScreen extends StatefulWidget {
 }
 
 class _CameraScreenState extends State<CameraScreen> {
+  final storageRef = FirebaseStorage.instance
+      .ref()
+      .child(md5.convert(utf8.encode(gv.email)).toString())
+      .child('gallery');
+
   String firstButtonText = 'Take photo';
   String secondButtonText = 'Record video';
   String albumName = 'TourAlbum';
@@ -71,6 +80,7 @@ class _CameraScreenState extends State<CameraScreen> {
         });
         GallerySaver.saveImage(recordedImage.path, albumName: albumName)
             .then((bool success) {
+          //implement here the upload
           setState(() {
             firstButtonText = 'image saved! Take photo';
           });

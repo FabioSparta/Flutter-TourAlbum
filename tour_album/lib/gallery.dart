@@ -67,18 +67,6 @@ Scaffold createGallery(GridListDemoType type) {
   );
 }
 
-class _Photo {
-  _Photo({
-    this.assetName,
-    this.title,
-    this.subtitle,
-  });
-
-  final String assetName;
-  final String title;
-  final String subtitle;
-}
-
 /// Allow the text size to shrink to fit in the space
 class _GridTitleText extends StatelessWidget {
   const _GridTitleText(this.text);

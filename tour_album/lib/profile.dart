@@ -8,6 +8,8 @@ import 'package:crypto/crypto.dart';
 import 'dart:convert';
 import 'global_vars.dart' as gv;
 
+import 'package:image_picker/image_picker.dart';
+
 class UserProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -321,6 +323,21 @@ Widget _buildButtons(BuildContext context) {
   );
 }
 
+/*https://medium.com/codechai/uploading-image-to-firebase-storage-in-flutter-app-android-ios-31ddd66843fc
+//upload new user profile picture
+Future changeImage(storageRef) async {
+  await ImagePicker.pickImage(source: ImageSource.gallery).then((image) {
+    StorageUploadTask uploadTask = storageRef.putFile(_image);
+    await uploadTask.onComplete;
+    print('File Uploaded');
+    storageRef.getDownloadURL().then((fileURL) {
+      setState(() {
+        _uploadedFileURL = fileURL;
+      });
+    });
+  });
+}
+*/
 class ImageDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
