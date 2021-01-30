@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tour_album/first_screen.dart';
 import 'package:tour_album/home.dart';
 import 'package:tour_album/login.dart';
+import 'package:tour_album/friends_list.dart';
 
 // Import the firebase_core plugin
 import 'package:firebase_core/firebase_core.dart';
@@ -11,10 +12,6 @@ void main() {
   runApp(MaterialApp(
       title: 'TourAlbum',
       home: Scaffold(
-        appBar: AppBar(
-          title: const Text('TourAlbum'),
-          backgroundColor: Colors.black,
-        ),
         body: Center(child: MyApp()),
       ),
       routes: {
@@ -23,6 +20,8 @@ void main() {
               initial_type: null,
             ),
         '/home': (context) => HomePage(),
+        '/first_page': (context) => FirstPage(),
+        '/friends_page': (context) => FriendsPage(),
       }));
 }
 

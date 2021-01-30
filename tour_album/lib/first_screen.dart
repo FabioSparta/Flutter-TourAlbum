@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:tour_album/login.dart';
 
 class FirstPage extends StatefulWidget {
   @override
@@ -9,7 +9,6 @@ class FirstPage extends StatefulWidget {
 class FirstPageContent extends State<FirstPage> {
   @override
   Widget build(BuildContext context) {
-    askPermissions();
     return Scaffold(
         body: Container(
       decoration: BoxDecoration(
@@ -20,12 +19,12 @@ class FirstPageContent extends State<FirstPage> {
             colors: [Colors.deepPurple, Colors.purple, Colors.blue]),
       ),
       child: new ListView(
-        children: <Widget>[buildTitle(), buildButtons(context)],
+        children: <Widget>[build_title(), build_buttons(context)],
       ),
     ));
   }
 
-  Widget buildTitle() {
+  Widget build_title() {
     return new Container(
         padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.1),
         child: Center(
@@ -39,7 +38,7 @@ class FirstPageContent extends State<FirstPage> {
         ));
   }
 
-  Widget buildButtons(BuildContext context) {
+  Widget build_buttons(BuildContext context) {
     return new Container(
       padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.08),
       child: Column(children: <Widget>[
@@ -88,21 +87,17 @@ class FirstPageContent extends State<FirstPage> {
             )));
   }
 
-  Future askPermissions() async {
-    await [
-      Permission.location,
-      Permission.storage,
-      Permission.camera,
-    ].request();
-  }
-
   void _continue() {
     print('Clicked continue');
     Navigator.of(context).pushReplacementNamed("/home");
   }
 
   void _login() {
-    Navigator.of(context).pushNamed("/login", arguments: FormType.login);
+    //Navigator.of(context).pushNamed("/login", arguments: FormType.login);
+      Navigator.push(context, new MaterialPageRoute(
+              builder: (context) => new LoginPage(   arguments: FormType.login,
+              initial_type: null,))
+          );
   }
 }
 

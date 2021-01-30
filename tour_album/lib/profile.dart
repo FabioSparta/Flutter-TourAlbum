@@ -4,9 +4,12 @@ import 'dart:typed_data';
 
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:crypto/crypto.dart';
 import 'dart:convert';
 import 'global_vars.dart' as gv;
+import 'package:tour_album/friends_list.dart';
+import 'package:tour_album/first_screen.dart';
 
 import 'package:image_picker/image_picker.dart';
 
@@ -55,8 +58,11 @@ Scaffold CreateProfile(BuildContext context, Size screenSize) {
                                 snapshot.data), //using Storage for image
                             _buildFullName(data['username']),
                             _buildStatus(context, _status),
-                            _buildStatContainer(_achievements,
-                                data['num_friends'].toString(), _locations),
+                            _buildStatContainer(
+                                _achievements,
+                                data['num_friends'].toString(),
+                                _locations,
+                                context),
                             _buildBio(context),
                             _buildSeparator(screenSize),
                             SizedBox(height: 10.0),
@@ -139,7 +145,7 @@ Widget _buildStatus(BuildContext context, String _status) {
   );
 }
 
-Widget _buildStatItem(String label, String count) {
+Widget _buildStatItem(String label, String count, context) {
   TextStyle _statLabelTextStyle = TextStyle(
     color: Colors.black,
     fontSize: 16.0,
@@ -159,16 +165,26 @@ Widget _buildStatItem(String label, String count) {
         count,
         style: _statCountTextStyle,
       ),
-      Text(
-        label,
-        style: _statLabelTextStyle,
-      ),
+      new GestureDetector(
+        onTap: () {
+          if (label == "Friends") {
+            print("friends Clicked");
+            Navigator.push(context, new MaterialPageRoute(
+              builder: (context) => new FriendsPage())
+          ) ;
+          }
+        },
+        child: new Text(
+          label,
+          style: _statLabelTextStyle,
+        ),
+      )
     ],
   );
 }
 
 Widget _buildStatContainer(
-    String _achievements, String _noFriends, String _locations) {
+    String _achievements, String _noFriends, String _locations, context) {
   return Container(
     height: 60.0,
     margin: EdgeInsets.only(top: 8.0),
@@ -178,9 +194,9 @@ Widget _buildStatContainer(
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: <Widget>[
-        _buildStatItem("Achievements", _achievements),
-        _buildStatItem("Friends", _noFriends),
-        _buildStatItem("Visited Locations", _locations),
+        _buildStatItem("Achievements", _achievements, context),
+        _buildStatItem("Friends", _noFriends, context),
+        _buildStatItem("Visited Locations", _locations, context),
       ],
     ),
   );
@@ -243,7 +259,7 @@ Widget _buildLogout(BuildContext context) {
     padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
     child: Expanded(
       child: InkWell(
-        onTap: () => print("followed"),
+        onTap: () => _logout(context),
         child: Container(
           height: 40.0,
           decoration: BoxDecoration(
@@ -338,6 +354,16 @@ Future changeImage(storageRef) async {
   });
 }
 */
+_logout(context) async {
+  await FirebaseAuth.instance.signOut();
+  print("logout");
+   Navigator.push(context, new MaterialPageRoute(
+              builder: (context) => new FirstPage())
+          ) ;
+}
+
+enum FormType { login, register }
+
 class ImageDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
