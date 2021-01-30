@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class FirstPage extends StatefulWidget {
   @override
@@ -8,6 +9,7 @@ class FirstPage extends StatefulWidget {
 class FirstPageContent extends State<FirstPage> {
   @override
   Widget build(BuildContext context) {
+    askPermissions();
     return Scaffold(
         body: Container(
       decoration: BoxDecoration(
@@ -18,12 +20,12 @@ class FirstPageContent extends State<FirstPage> {
             colors: [Colors.deepPurple, Colors.purple, Colors.blue]),
       ),
       child: new ListView(
-        children: <Widget>[build_title(), build_buttons(context)],
+        children: <Widget>[buildTitle(), buildButtons(context)],
       ),
     ));
   }
 
-  Widget build_title() {
+  Widget buildTitle() {
     return new Container(
         padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.1),
         child: Center(
@@ -37,7 +39,7 @@ class FirstPageContent extends State<FirstPage> {
         ));
   }
 
-  Widget build_buttons(BuildContext context) {
+  Widget buildButtons(BuildContext context) {
     return new Container(
       padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.08),
       child: Column(children: <Widget>[
@@ -51,7 +53,7 @@ class FirstPageContent extends State<FirstPage> {
               ),
             ),
             context,
-            Continue),
+            _continue),
         createButton(
             new Text(
               "Login",
@@ -61,7 +63,7 @@ class FirstPageContent extends State<FirstPage> {
               ),
             ),
             context,
-            Login),
+            _login),
       ]),
     );
   }
@@ -86,12 +88,20 @@ class FirstPageContent extends State<FirstPage> {
             )));
   }
 
-  void Continue() {
+  Future askPermissions() async {
+    await [
+      Permission.location,
+      Permission.storage,
+      Permission.camera,
+    ].request();
+  }
+
+  void _continue() {
     print('Clicked continue');
     Navigator.of(context).pushReplacementNamed("/home");
   }
 
-  void Login() {
+  void _login() {
     Navigator.of(context).pushNamed("/login", arguments: FormType.login);
   }
 }

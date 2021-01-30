@@ -6,7 +6,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:gallery_saver/gallery_saver.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:crypto/crypto.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'global_vars.dart' as gv;
+import 'package:path/path.dart' as p;
 
 class CameraScreen extends StatefulWidget {
   @override
@@ -80,13 +82,23 @@ class _CameraScreenState extends State<CameraScreen> {
         });
         GallerySaver.saveImage(recordedImage.path, albumName: albumName)
             .then((bool success) {
-          //implement here the upload
+          //uploading image here
+          uploadImageToFirebase(context, recordedImage);
           setState(() {
             firstButtonText = 'image saved! Take photo';
           });
         });
       }
     });
+  }
+
+  Future uploadImageToFirebase(BuildContext context, File recordedImage) async {
+    String fileName = p.basename(recordedImage.path);
+    final storageRef = FirebaseStorage.instance
+        .ref()
+        .child(md5.convert(utf8.encode(gv.email)).toString())
+        .child('gallery/$fileName');
+    storageRef.putFile(recordedImage);
   }
 
   void _recordVideo() async {
@@ -99,6 +111,7 @@ class _CameraScreenState extends State<CameraScreen> {
         });
         GallerySaver.saveVideo(recordedVideo.path, albumName: albumName)
             .then((bool success) {
+          //videos are not being saved to firebase yet (might implement later)
           setState(() {
             secondButtonText = 'video saved! Take video';
           });
