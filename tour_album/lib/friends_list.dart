@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:tour_album/model/FriendsModel.dart';
+import 'package:tour_album/friend_gallery.dart';
+import 'global_vars.dart' as gv;
 
 // CODE ADAPTED FROM  https://github.com/PareshMayani/Flutter-Friends
 
@@ -39,8 +41,7 @@ class FriendsState extends State<FriendsPage> {
           padding: const EdgeInsets.all(0.0),
           itemBuilder: (context, i) {
             //if (i.isOdd) return new Divider();
-            if (i < _listFriends.length) 
-              return _buildRow(_listFriends[i]);
+            if (i < _listFriends.length) return _buildRow(_listFriends[i]);
           });
     }
 
@@ -70,6 +71,9 @@ class FriendsState extends State<FriendsPage> {
       ),
       subtitle: new Text(friendsModel.email),
       onTap: () {
+        gv.friend_email = friendsModel.email;
+        Navigator.push(context,
+            new MaterialPageRoute(builder: (context) => new FriendGallery()));
         print("friend tapped");
         setState(() {});
       },

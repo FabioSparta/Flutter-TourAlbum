@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-
 import 'package:tour_album/camera.dart';
 import 'package:tour_album/gallery.dart';
 import 'package:tour_album/map.dart';
 import 'package:tour_album/google_map.dart';
 import 'package:tour_album/profile.dart';
-
 import 'gallery.dart';
 
 // This is the main application widget.
@@ -55,7 +53,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
           CameraScreen(),
           GoogleMapScreen(),
           GalleryPage(),
-          UserProfilePage(),
+          ProfilePage(),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(

@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 import 'dart:convert';
-
+import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:crypto/crypto.dart';
@@ -58,6 +58,7 @@ Scaffold createGallery(GridListDemoType type) {
                       return _GridDemoPhotoItem(
                         url: snap.data,
                         tileStyle: type,
+                        imgRef: "$photo",
                       );
                     });
               }).toList(),
@@ -88,13 +89,33 @@ class _GridDemoPhotoItem extends StatelessWidget {
     Key key,
     @required this.url,
     @required this.tileStyle,
+    @required this.imgRef,
   }) : super(key: key);
 
   String url;
   GridListDemoType tileStyle;
+  String imgRef;
 
   @override
   Widget build(BuildContext context) {
+    var img = imgRef.split('/').last;
+    img = img.substring(0, img.length - 1);
+    print(img);
+
+    var fbDB = FirebaseDatabase(
+            databaseURL:
+                'https://touralbum2-39c64-default-rtdb.europe-west1.firebasedatabase.app/')
+        .reference()
+        .child("users")
+        .child(md5.convert(utf8.encode(gv.email)).toString())
+        .child("gallery")
+        .child(md5.convert(utf8.encode(img)).toString());
+
+    var time = "";
+    var location = "";
+    fbDB.once().then((DataSnapshot dataSnap) => time = dataSnap.value);
+    fbDB.once().then((DataSnapshot dataSnap) => location = dataSnap.value);
+
     final Widget image = Material(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
       clipBehavior: Clip.antiAlias,
@@ -122,7 +143,7 @@ class _GridDemoPhotoItem extends StatelessWidget {
             ),
             clipBehavior: Clip.antiAlias,
             child: GridTileBar(
-              title: _GridTitleText("title"),
+              title: _GridTitleText("Photo"),
               backgroundColor: Colors.black45,
             ),
           ),
@@ -136,11 +157,16 @@ class _GridDemoPhotoItem extends StatelessWidget {
               borderRadius: BorderRadius.vertical(bottom: Radius.circular(4)),
             ),
             clipBehavior: Clip.antiAlias,
-            child: GridTileBar(
-              backgroundColor: Colors.black45,
-              title: _GridTitleText("title"),
-              subtitle: _GridTitleText("subtitle/description"),
-            ),
+            child: StreamBuilder(
+                stream: fbDB.onValue,
+                builder: (context, snap) {
+                  return GridTileBar(
+                    backgroundColor: Colors.black45,
+                    title: _GridTitleText(snap.data.snapshot.value["time"]),
+                    subtitle:
+                        _GridTitleText(snap.data.snapshot.value["location"]),
+                  );
+                }),
           ),
           child: image,
         );
