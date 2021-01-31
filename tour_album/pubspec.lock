@@ -268,6 +268,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "7.1.6"
+  focused_menu:
+    dependency: "direct main"
+    description:
+      name: focused_menu
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.2"
   gallery_saver:
     dependency: "direct main"
     description:

@@ -109,9 +109,9 @@ class _CameraScreenState extends State<CameraScreen> {
           firstButtonText = 'saving in progress...';
         });
         GallerySaver.saveImage(recordedImage.path, albumName: albumName)
-            .then((bool success) {
+            .then((bool success) async {
           //uploading image here
-          uploadImageToFirebase(context, recordedImage);
+          await uploadImageToFirebase(recordedImage);
 
           print(userAddress);
 
@@ -149,13 +149,13 @@ class _CameraScreenState extends State<CameraScreen> {
     });
   }
 
-  Future uploadImageToFirebase(BuildContext context, File recordedImage) async {
+  Future uploadImageToFirebase(File recordedImage) async {
     String fileName = p.basename(recordedImage.path);
     final storageRef = FirebaseStorage.instance
         .ref()
         .child(md5.convert(utf8.encode(gv.email)).toString())
         .child('gallery/$fileName');
-    storageRef.putFile(recordedImage);
+    await storageRef.putFile(recordedImage);
   }
 
   Future<Address> convertCoordinatesToAddress(Coordinates coordinates) async {

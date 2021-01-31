@@ -3,10 +3,13 @@
 // found in the LICENSE file.
 
 import 'dart:convert';
+
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:crypto/crypto.dart';
+import 'package:focused_menu/focused_menu.dart';
+import 'package:focused_menu/modals.dart';
 import 'global_vars.dart' as gv;
 
 enum GridListDemoType {
@@ -15,57 +18,58 @@ enum GridListDemoType {
   footer,
 }
 
-class GalleryPage extends StatelessWidget {
-  const GalleryPage({Key key, this.type}) : super(key: key);
+class GalleryPage extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => new _GalleryPage();
+}
+
+class _GalleryPage extends State<GalleryPage> {
+  _GalleryPage({this.type});
 
   final GridListDemoType type;
 
-  @override
-  Widget build(BuildContext context) {
-    return createGallery(type);
-  }
-}
-
-Scaffold createGallery(GridListDemoType type) {
   final storageRef = FirebaseStorage.instance
       .ref()
       .child(md5.convert(utf8.encode(gv.email)).toString())
       .child('gallery');
 
-  return Scaffold(
-    body: FutureBuilder(
-        future: storageRef.listAll(),
-        builder: (context, snapshot) {
-          snapshot.data.items.forEach((Reference ref) {
-            print('Found file: $ref');
-          });
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: FutureBuilder(
+          future: storageRef.listAll(),
+          builder: (context, snapshot) {
+            snapshot.data.items.forEach((Reference ref) {
+              print('Found file: $ref');
+            });
 
-          //NetworkImage(url)
-
-          return Scaffold(
-            body: GridView.count(
-              restorationId: 'grid_view_demo_grid_offset',
-              crossAxisCount: 2,
-              mainAxisSpacing: 4,
-              crossAxisSpacing: 4,
-              padding: const EdgeInsets.all(8),
-              childAspectRatio: 1,
-              children: snapshot.data.items.map<Widget>((photo) {
-                return FutureBuilder(
-                    future: photo.getDownloadURL(),
-                    builder: (context2, snap) {
-                      print(snap.data.toString());
-                      return _GridDemoPhotoItem(
-                        url: snap.data,
-                        tileStyle: type,
-                        imgRef: "$photo",
-                      );
-                    });
-              }).toList(),
-            ),
-          );
-        }),
-  );
+            return Scaffold(
+              body: GridView.count(
+                restorationId: 'grid_view_demo_grid_offset',
+                crossAxisCount: 2,
+                mainAxisSpacing: 4,
+                crossAxisSpacing: 4,
+                padding: const EdgeInsets.all(8),
+                childAspectRatio: 1,
+                children: snapshot.data.items.map<Widget>((photo) {
+                  return FutureBuilder(
+                      future: photo.getDownloadURL(),
+                      builder: (context2, snap) {
+                        print("URL!!!!: " + snap.data);
+                        return GridDemoPhotoItem(
+                          w: this,
+                          url: snap.data,
+                          tileStyle: type,
+                          imgRef: photo.fullPath,
+                        );
+                      });
+                }).toList(),
+              ),
+            );
+          }),
+    );
+    ;
+  }
 }
 
 /// Allow the text size to shrink to fit in the space
@@ -84,23 +88,27 @@ class _GridTitleText extends StatelessWidget {
   }
 }
 
-class _GridDemoPhotoItem extends StatelessWidget {
-  _GridDemoPhotoItem({
-    Key key,
+class GridDemoPhotoItem extends StatefulWidget {
+  GridDemoPhotoItem({
+    @required this.w,
     @required this.url,
     @required this.tileStyle,
     @required this.imgRef,
-  }) : super(key: key);
+  });
 
   String url;
   GridListDemoType tileStyle;
   String imgRef;
+  var w;
 
   @override
+  State<StatefulWidget> createState() => new _GridDemoPhotoItem();
+}
+
+class _GridDemoPhotoItem extends State<GridDemoPhotoItem> {
+  @override
   Widget build(BuildContext context) {
-    var img = imgRef.split('/').last;
-    img = img.substring(0, img.length - 1);
-    print(img);
+    var img = this.widget.imgRef.split('/').last;
 
     var fbDB = FirebaseDatabase(
             databaseURL:
@@ -111,66 +119,83 @@ class _GridDemoPhotoItem extends StatelessWidget {
         .child("gallery")
         .child(md5.convert(utf8.encode(img)).toString());
 
-    var time = "";
-    var location = "";
-    fbDB.once().then((DataSnapshot dataSnap) => time = dataSnap.value);
-    fbDB.once().then((DataSnapshot dataSnap) => location = dataSnap.value);
-
-    final Widget image = Material(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-      clipBehavior: Clip.antiAlias,
-      child: Container(
-        width: 100,
-        height: 100,
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: NetworkImage(url),
-            fit: BoxFit.fill,
+    return GridTile(
+      footer: Material(
+        color: Colors.transparent,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(bottom: Radius.circular(4)),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: StreamBuilder(
+            stream: fbDB.onValue,
+            builder: (context, snap) {
+              return GridTileBar(
+                backgroundColor: Colors.black45,
+                title: _GridTitleText(snap.data.snapshot.value["time"]),
+                subtitle: _GridTitleText(snap.data.snapshot.value["location"]),
+              );
+            }),
+      ),
+      child: FocusedMenuHolder(
+        menuWidth: MediaQuery.of(context).size.width * 0.48,
+        menuBoxDecoration: BoxDecoration(color: Colors.black),
+        onPressed: () {},
+        menuItems: <FocusedMenuItem>[
+          FocusedMenuItem(
+              title: Text(
+                "Open",
+                style: TextStyle(color: Colors.blue),
+              ),
+              onPressed: () {},
+              trailingIcon: Icon(
+                Icons.aspect_ratio,
+                color: Colors.blue,
+              ),
+              backgroundColor: Colors.black),
+          FocusedMenuItem(
+              title: Text(
+                "Edit Description",
+                style: TextStyle(color: Colors.blue),
+              ),
+              onPressed: () {},
+              trailingIcon: Icon(
+                Icons.edit,
+                color: Colors.blue,
+              ),
+              backgroundColor: Colors.black),
+          FocusedMenuItem(
+              title: Text(
+                "Delete",
+                style: TextStyle(color: Colors.blue),
+              ),
+              onPressed: () {
+                FirebaseStorage.instance.ref(this.widget.imgRef).delete();
+                fbDB.remove().then((onValue) {
+                  print('Photo deleted');
+                  this.widget.w.setState(() {});
+                });
+              },
+              trailingIcon: Icon(
+                Icons.delete,
+                color: Colors.blue,
+              ),
+              backgroundColor: Colors.black),
+        ],
+        child: Material(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+          clipBehavior: Clip.antiAlias,
+          child: Container(
+            width: 100,
+            height: 100,
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: NetworkImage(this.widget.url),
+                fit: BoxFit.fill,
+              ),
+            ),
           ),
         ),
       ),
     );
-    tileStyle = GridListDemoType.footer;
-    switch (tileStyle) {
-      case GridListDemoType.imageOnly:
-        return image;
-      case GridListDemoType.header:
-        return GridTile(
-          header: Material(
-            color: Colors.transparent,
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(4)),
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: GridTileBar(
-              title: _GridTitleText("Photo"),
-              backgroundColor: Colors.black45,
-            ),
-          ),
-          child: image,
-        );
-      case GridListDemoType.footer:
-        return GridTile(
-          footer: Material(
-            color: Colors.transparent,
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(bottom: Radius.circular(4)),
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: StreamBuilder(
-                stream: fbDB.onValue,
-                builder: (context, snap) {
-                  return GridTileBar(
-                    backgroundColor: Colors.black45,
-                    title: _GridTitleText(snap.data.snapshot.value["time"]),
-                    subtitle:
-                        _GridTitleText(snap.data.snapshot.value["location"]),
-                  );
-                }),
-          ),
-          child: image,
-        );
-    }
-    return null;
   }
 }

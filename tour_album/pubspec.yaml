@@ -38,6 +38,10 @@ dependencies:
   path_provider: ^1.6.24
   image_picker: ^0.6.7+17
   gallery_saver: ^2.0.1
+  #
+  #gallery
+  focused_menu: ^1.0.2
+  #
   #city 
   geolocator: ^5.3.0
   geocoder: ^0.2.1
