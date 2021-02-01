@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import 'package:qrscan/qrscan.dart' as scanner;
 import 'dart:typed_data';
 import 'package:firebase_database/firebase_database.dart';
@@ -66,7 +67,7 @@ class UserProfilePage extends State<ProfilePage> {
                               SizedBox(height: 10.0),
                               _buildChangedPicture(context),
                               SizedBox(height: 8.0),
-                              _buildButtons(context),
+                              _buildButtons(context, dbRef),
                               SizedBox(height: 8.0),
                               _buildLogout(context),
                             ],
@@ -99,11 +100,7 @@ class UserProfilePage extends State<ProfilePage> {
         height: 140.0,
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: url == null
-                ? AssetImage('images/b.jpg')
-                : url is File
-                    ? FileImage(url)
-                    : NetworkImage(url),
+            image: url == null ? AssetImage('images/b.jpg') : NetworkImage(url),
             fit: BoxFit.cover,
           ),
           borderRadius: BorderRadius.circular(80.0),
@@ -246,7 +243,7 @@ class UserProfilePage extends State<ProfilePage> {
         .child('profile_pic.jpg');
     storageRef.putFile(recordedImage).then((onValue) {
       print(
-          "saved on storage successfully, and show do a set state right after !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+          "saved on storage successfully, and show do a set state right after !");
       setState(() {});
     });
   }
@@ -256,7 +253,7 @@ class UserProfilePage extends State<ProfilePage> {
       color: Theme.of(context).scaffoldBackgroundColor,
       padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: InkWell(
-        onTap: () { 
+        onTap: () {
           File _image;
           final picker = ImagePicker();
           getImage(picker, _image, context);
@@ -307,18 +304,32 @@ class UserProfilePage extends State<ProfilePage> {
     );
   }
 
-  Widget _buildButtons(BuildContext context) {
+  Widget _buildButtons(BuildContext context, DatabaseReference dbRef) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: Row(
         children: <Widget>[
           Expanded(
             child: InkWell(
-              onTap: () async {
-                Uint8List result =
-                    await scanner.generateBarCode("Sou eu o Gervaldo");
-                await showDialog(
-                    context: context, builder: (_) => ImageDialog());
+              onTap: () {
+                print("QR code generator!");
+                showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        content: Container(
+                          height: 200.0, // Change as per your requirement
+                          width: 200.0,
+                          child: Center(
+                            child: QrImage(
+                              data: gv.email,
+                              version: QrVersions.auto,
+                              size: 200.0,
+                            ),
+                          ),
+                        ),
+                      );
+                    });
               },
               child: Container(
                 height: 40.0,
@@ -343,6 +354,12 @@ class UserProfilePage extends State<ProfilePage> {
             child: InkWell(
               onTap: () async {
                 String cameraScanResult = await scanner.scan();
+                if (cameraScanResult != gv.email) {
+                  print("Added new Friend! " + cameraScanResult);
+                  dbRef.child("friends").set({
+                    md5.convert(utf8.encode(cameraScanResult)).toString(): 0
+                  });
+                }
               },
               child: Container(
                 height: 40.0,

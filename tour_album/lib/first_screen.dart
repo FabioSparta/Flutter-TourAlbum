@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class FirstPage extends StatefulWidget {
   @override
@@ -94,12 +95,22 @@ class FirstPageContent extends State<FirstPage> {
   }
 
   void _continue() {
-    print('Clicked continue');
-    Navigator.of(context).pushReplacementNamed("/home");
+    _toast("Not yet implemented...", Colors.white, Colors.red);
   }
 
   void _login() {
     Navigator.of(context).pushNamed("/login", arguments: FormType.login);
+  }
+
+  void _toast(txt, txtColor, backColor) {
+    Fluttertoast.showToast(
+        msg: txt,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: backColor,
+        textColor: txtColor,
+        fontSize: 14.0);
   }
 }
 

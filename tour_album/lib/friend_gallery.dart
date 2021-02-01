@@ -1,7 +1,15 @@
 // Copyright 2019 The Flutter team. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+
+import 'dart:convert';
+import 'package:tour_album/fullscreen.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:crypto/crypto.dart';
+import 'package:focused_menu/focused_menu.dart';
+import 'package:focused_menu/modals.dart';
 import 'global_vars.dart' as gv;
 
 enum GridListDemoType {
@@ -10,76 +18,65 @@ enum GridListDemoType {
   footer,
 }
 
-class FriendGallery extends StatelessWidget {
-  const FriendGallery({Key key, this.type}) : super(key: key);
+class FriendGallery extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => new _FriendGallery();
+}
+
+class _FriendGallery extends State<FriendGallery> {
+  _FriendGallery({this.type});
 
   final GridListDemoType type;
 
-  List<_Photo> _photos(BuildContext context) {
-    return [
-      _Photo(
-        assetName: 'images/a.jpg',
-        title: "a",
-        subtitle: "aa",
-      ),
-      _Photo(
-        assetName: 'images/b.jpg',
-        title: "b",
-        subtitle: "bb",
-      ),
-      _Photo(
-        assetName: 'images/c.jpg',
-        title: "c",
-        subtitle: "cc",
-      ),
-      _Photo(
-        assetName: 'images/d.jpg',
-        title: "d",
-        subtitle: "dd",
-      ),
-    ];
-  }
+  final storageRef =
+      FirebaseStorage.instance.ref().child(gv.friend_email).child('gallery');
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildBar(context),
-      body: GridView.count(
-        restorationId: 'grid_view_demo_grid_offset',
-        crossAxisCount: 2,
-        mainAxisSpacing: 4,
-        crossAxisSpacing: 4,
-        padding: const EdgeInsets.all(8),
-        childAspectRatio: 1,
-        children: _photos(context).map<Widget>((photo) {
-          return _GridDemoPhotoItem(
-            photo: photo,
-            tileStyle: type,
-          );
-        }).toList(),
-      ),
+      body: FutureBuilder(
+          future: storageRef.listAll(),
+          builder: (context, snapshot) {
+            snapshot.data.items.forEach((Reference ref) {
+              print('Found file: $ref');
+            });
+
+            return Scaffold(
+              body: GridView.count(
+                restorationId: 'grid_view_demo_grid_offset',
+                crossAxisCount: 2,
+                mainAxisSpacing: 4,
+                crossAxisSpacing: 4,
+                padding: const EdgeInsets.all(8),
+                childAspectRatio: 1,
+                children: snapshot.data.items.map<Widget>((photo) {
+                  return FutureBuilder(
+                      future: photo.getDownloadURL(),
+                      builder: (context2, snap) {
+                        print("URL!!!!: " + snap.data);
+                        return GridDemoPhotoItem(
+                          w: this,
+                          url: snap.data,
+                          tileStyle: type,
+                          imgRef: photo.fullPath,
+                        );
+                      });
+                }).toList(),
+              ),
+            );
+          }),
     );
   }
-}
 
- Widget _buildBar(BuildContext context) {
+  Widget _buildBar(BuildContext context) {
     return new AppBar(
       backgroundColor: Colors.black,
-      title:  Text(gv.friend_email, style: TextStyle(color: Colors.blue)),
+      title: Text(gv.friend_username + "'s gallery",
+          style: TextStyle(color: Colors.blue)),
       centerTitle: true,
     );
   }
-
-class _Photo {
-  _Photo({
-    this.assetName,
-    this.title,
-    this.subtitle,
-  });
-
-  final String assetName;
-  final String title;
-  final String subtitle;
 }
 
 /// Allow the text size to shrink to fit in the space
@@ -98,62 +95,132 @@ class _GridTitleText extends StatelessWidget {
   }
 }
 
-class _GridDemoPhotoItem extends StatelessWidget {
-  _GridDemoPhotoItem({
-    Key key,
-    @required this.photo,
+class GridDemoPhotoItem extends StatefulWidget {
+  GridDemoPhotoItem({
+    @required this.w,
+    @required this.url,
     @required this.tileStyle,
-  }) : super(key: key);
+    @required this.imgRef,
+  });
 
-  _Photo photo;
+  String url;
   GridListDemoType tileStyle;
+  String imgRef;
+  var w;
 
   @override
+  State<StatefulWidget> createState() => new _GridDemoPhotoItem();
+}
+
+class _GridDemoPhotoItem extends State<GridDemoPhotoItem> {
+  @override
   Widget build(BuildContext context) {
-    final Widget image = Material(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-      clipBehavior: Clip.antiAlias,
-      child: Image.asset(
-        photo.assetName,
-        fit: BoxFit.cover,
+    var img = this.widget.imgRef.split('/').last;
+
+    var fbDB = FirebaseDatabase(
+            databaseURL:
+                'https://touralbum2-39c64-default-rtdb.europe-west1.firebasedatabase.app/')
+        .reference()
+        .child("users")
+        .child(gv.friend_email)
+        .child("gallery")
+        .child(md5.convert(utf8.encode(img)).toString());
+
+    return GestureDetector(
+      onTap: () {
+        gv.image_url = this.widget.url;
+        Navigator.push(context,
+            new MaterialPageRoute(builder: (context) => new FullScreenPage()));
+      },
+      child: GridTile(
+        footer: Material(
+          color: Colors.transparent,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(bottom: Radius.circular(4)),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: StreamBuilder(
+              stream: fbDB.onValue,
+              builder: (context, snap) {
+                return GridTileBar(
+                  backgroundColor: Colors.black45,
+                  title: _GridTitleText(snap.data.snapshot.value["time"]),
+                  subtitle:
+                      _GridTitleText(snap.data.snapshot.value["location"]),
+                );
+              }),
+        ),
+        child: GestureDetector(
+          child: FocusedMenuHolder(
+            menuWidth: MediaQuery.of(context).size.width * 0.48,
+            menuBoxDecoration: BoxDecoration(color: Colors.black),
+            onPressed: () {},
+            menuItems: <FocusedMenuItem>[
+              FocusedMenuItem(
+                  title: Text(
+                    "Open",
+                    style: TextStyle(color: Colors.blue),
+                  ),
+                  onPressed: () {
+                    print("clicked open full screen");
+                    gv.image_url = this.widget.url;
+                    Navigator.push(
+                        context,
+                        new MaterialPageRoute(
+                            builder: (context) => new FullScreenPage()));
+                  },
+                  trailingIcon: Icon(
+                    Icons.aspect_ratio,
+                    color: Colors.blue,
+                  ),
+                  backgroundColor: Colors.black),
+              FocusedMenuItem(
+                  title: Text(
+                    "Edit Description",
+                    style: TextStyle(color: Colors.blue),
+                  ),
+                  onPressed: () {},
+                  trailingIcon: Icon(
+                    Icons.edit,
+                    color: Colors.blue,
+                  ),
+                  backgroundColor: Colors.black),
+              FocusedMenuItem(
+                  title: Text(
+                    "Delete",
+                    style: TextStyle(color: Colors.blue),
+                  ),
+                  onPressed: () {
+                    FirebaseStorage.instance.ref(this.widget.imgRef).delete();
+                    fbDB.remove().then((onValue) {
+                      print('Photo deleted');
+                      this.widget.w.setState(() {});
+                    });
+                  },
+                  trailingIcon: Icon(
+                    Icons.delete,
+                    color: Colors.blue,
+                  ),
+                  backgroundColor: Colors.black),
+            ],
+            child: Material(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(4)),
+              clipBehavior: Clip.antiAlias,
+              child: Container(
+                width: 100,
+                height: 100,
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: NetworkImage(this.widget.url),
+                    fit: BoxFit.fill,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     );
-    tileStyle = GridListDemoType.footer;
-    switch (tileStyle) {
-      case GridListDemoType.imageOnly:
-        return image;
-      case GridListDemoType.header:
-        return GridTile(
-          header: Material(
-            color: Colors.transparent,
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(4)),
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: GridTileBar(
-              title: _GridTitleText(photo.title),
-              backgroundColor: Colors.black45,
-            ),
-          ),
-          child: image,
-        );
-      case GridListDemoType.footer:
-        return GridTile(
-          footer: Material(
-            color: Colors.transparent,
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(bottom: Radius.circular(4)),
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: GridTileBar(
-              backgroundColor: Colors.black45,
-              title: _GridTitleText(photo.title),
-              subtitle: _GridTitleText(photo.subtitle),
-            ),
-          ),
-          child: image,
-        );
-    }
-    return null;
   }
 }

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
-import 'dart:io';
+
+import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:crypto/crypto.dart';
 import 'package:tour_album/model/FriendsModel.dart';
 import 'package:tour_album/friend_gallery.dart';
 import 'global_vars.dart' as gv;
@@ -22,7 +25,7 @@ class FriendsState extends State<FriendsPage> {
   @override
   void initState() {
     super.initState();
-    _fetchFriendsList();
+    getFriends();
   }
 
   @override
@@ -35,10 +38,10 @@ class FriendsState extends State<FriendsPage> {
               padding: const EdgeInsets.only(left: 16.0, right: 16.0),
               child: new CircularProgressIndicator()));
     } else {
-      //TODO: search how to stop ListView going infinite list
       widget = new ListView.builder(
           shrinkWrap: true,
           padding: const EdgeInsets.all(0.0),
+          // ignore: missing_return
           itemBuilder: (context, i) {
             //if (i.isOdd) return new Divider();
             if (i < _listFriends.length) return _buildRow(_listFriends[i]);
@@ -51,6 +54,48 @@ class FriendsState extends State<FriendsPage> {
     );
   }
 
+  getFriends() async {
+    List<FriendsModel> friends = [];
+    final response = await FirebaseDatabase(
+            databaseURL:
+                'https://touralbum2-39c64-default-rtdb.europe-west1.firebasedatabase.app/')
+        .reference()
+        .child("users")
+        .child(md5.convert(utf8.encode(gv.email)).toString())
+        .child("friends")
+        .once()
+        .then((DataSnapshot dataSnapshot) async {
+      Map newKey = dataSnapshot.value;
+      for (var k in newKey.keys) {
+        var name = "";
+        DataSnapshot d = await FirebaseDatabase(
+                databaseURL:
+                    'https://touralbum2-39c64-default-rtdb.europe-west1.firebasedatabase.app/')
+            .reference()
+            .child("users")
+            .child(k.toString())
+            .once();
+
+        final imgUrl = await FirebaseStorage.instance
+            .ref()
+            .child(k.toString())
+            .child('profile_pic.jpg')
+            .getDownloadURL();
+
+        name = d.value["username"];
+
+        FriendsModel f = new FriendsModel(name, k.toString(), imgUrl);
+        friends.add(f);
+      }
+      setState(() {
+        _listFriends = friends;
+        print("after adding users to list");
+        print(_listFriends.length);
+        _isProgressBarShown = false;
+      });
+    });
+  }
+
   Widget _buildBar(BuildContext context) {
     return new AppBar(
       backgroundColor: Colors.black,
@@ -59,61 +104,27 @@ class FriendsState extends State<FriendsPage> {
     );
   }
 
-  Widget _buildRow(FriendsModel friendsModel) {
+  Widget _buildRow(FriendsModel friend) {
     return new ListTile(
       leading: new CircleAvatar(
+        backgroundImage: friend.url == null
+            ? AssetImage('images/b.jpg')
+            : NetworkImage(friend.url),
         backgroundColor: Colors.grey,
         // backgroundImage: new NetworkImage(friendsModel.profileImageUrl),
       ),
       title: new Text(
-        friendsModel.name,
+        friend.name,
         style: _biggerFont,
       ),
-      subtitle: new Text(friendsModel.email),
       onTap: () {
-        gv.friend_email = friendsModel.email;
+        gv.friend_email = friend.email;
+        gv.friend_username = friend.name;
         Navigator.push(context,
             new MaterialPageRoute(builder: (context) => new FriendGallery()));
         print("friend tapped");
         setState(() {});
       },
     );
-  }
-
-  _fetchFriendsList() async {
-    _isProgressBarShown = true;
-    List<FriendsModel> listFriends = new List<FriendsModel>();
-
-    //EXAMPLE OF A FRIEND 1 //////////////////////////
-    String name = "first_name" + " " + "last_name";
-
-    // var objImage = res['picture'];
-    //String profileUrl = objImage['large'].toString();
-    FriendsModel friendsModel =
-        new FriendsModel(name, "email"); //, profileUrl);
-
-    listFriends.add(friendsModel);
-    //print(friendsModel.profileImageUrl);
-    ////////////////////////////////////////////////////
-
-    //EXAMPLE OF A FRIEND 2 //////////////////////////////
-    name = "first_name2" + " " + "last_name2";
-
-    // var objImage = res['picture'];
-    //String profileUrl = objImage['large'].toString();
-    FriendsModel friendsModel2 =
-        new FriendsModel(name, "email2"); //, profileUrl);
-
-    listFriends.add(friendsModel2);
-    //print(friendsModel.profileImageUrl);
-    ///////////////////////////////////////////////////
-
-    if (!mounted) return;
-    setState(() {
-      _listFriends = listFriends;
-      print("after adding users to list");
-      print(_listFriends.length);
-      _isProgressBarShown = false;
-    });
   }
 }

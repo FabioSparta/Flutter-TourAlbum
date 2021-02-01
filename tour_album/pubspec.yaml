@@ -41,6 +41,7 @@ dependencies:
   #
   #gallery
   focused_menu: ^1.0.2
+  image_downloader: ^0.20.1
   #
   #city 
   geolocator: ^5.3.0
@@ -61,6 +62,7 @@ dependencies:
   #
   #Qr code scaner
   qrscan: ^0.2.21
+  qr_flutter: ^3.2.0
 
   #gallery dependencies
   #flutter_gallery: ^2.4.0+20400
