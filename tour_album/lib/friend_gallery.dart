@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'dart:convert';
+import 'package:flutter/services.dart';
 import 'package:tour_album/fullscreen.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -176,29 +177,15 @@ class _GridDemoPhotoItem extends State<GridDemoPhotoItem> {
                   backgroundColor: Colors.black),
               FocusedMenuItem(
                   title: Text(
-                    "Edit Description",
+                    "Download",
                     style: TextStyle(color: Colors.blue),
                   ),
-                  onPressed: () {},
-                  trailingIcon: Icon(
-                    Icons.edit,
-                    color: Colors.blue,
-                  ),
-                  backgroundColor: Colors.black),
-              FocusedMenuItem(
-                  title: Text(
-                    "Delete",
-                    style: TextStyle(color: Colors.blue),
-                  ),
-                  onPressed: () {
-                    FirebaseStorage.instance.ref(this.widget.imgRef).delete();
-                    fbDB.remove().then((onValue) {
-                      print('Photo deleted');
-                      this.widget.w.setState(() {});
-                    });
+                  onPressed: () async {
+                    print("Downloading");
+                    await ImageDownloader.downloadImage(this.widget.url);
                   },
                   trailingIcon: Icon(
-                    Icons.delete,
+                    Icons.download_outlined,
                     color: Colors.blue,
                   ),
                   backgroundColor: Colors.black),
@@ -222,5 +209,27 @@ class _GridDemoPhotoItem extends State<GridDemoPhotoItem> {
         ),
       ),
     );
+  }
+}
+
+class ImageDownloader {
+  /// MethodChannel of image_downloader.
+  static const MethodChannel _channel =
+      const MethodChannel('plugins.ko2ic.com/imagedownloader');
+
+  /// private constructor.
+  ImageDownloader();
+
+  /// Save the image of the specified [url] on each devices.
+  ///
+  /// ios will be saved in Photo Library.
+  /// Android will be saved in the download directory.
+  ///
+  /// Returns true if saving succeeded.
+  /// Returns false if not been granted permission.
+  /// Otherwise it is a PlatformException.
+  static Future<bool> downloadImage(String url) async {
+    return await _channel.invokeMethod('downloadImage',
+        <String, String>{'url': url}).then<bool>((dynamic result) => result);
   }
 }

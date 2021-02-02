@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:qrscan/qrscan.dart' as scanner;
 import 'dart:typed_data';
+import 'package:tour_album/fullscreen.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -94,7 +95,13 @@ class UserProfilePage extends State<ProfilePage> {
   }
 
   Widget _buildProfileImage(url) {
-    return Center(
+    return GestureDetector(
+      onTap: () {
+        gv.image_url = url;
+        Navigator.push(context,
+            new MaterialPageRoute(builder: (context) => new FullScreenPage()));
+      },
+    child: Center(
       child: Container(
         width: 140.0,
         height: 140.0,
@@ -110,6 +117,7 @@ class UserProfilePage extends State<ProfilePage> {
           ),
         ),
       ),
+    ),
     );
   }
 
@@ -356,8 +364,21 @@ class UserProfilePage extends State<ProfilePage> {
                 String cameraScanResult = await scanner.scan();
                 if (cameraScanResult != gv.email) {
                   print("Added new Friend! " + cameraScanResult);
-                  dbRef.child("friends").set({
-                    md5.convert(utf8.encode(cameraScanResult)).toString(): 0
+                  dbRef
+                      .child("friends")
+                      .child(
+                          md5.convert(utf8.encode(cameraScanResult)).toString())
+                      .set({'val': 0}).then((onValue) async {
+                    DataSnapshot d = await FirebaseDatabase(
+                            databaseURL:
+                                'https://touralbum2-39c64-default-rtdb.europe-west1.firebasedatabase.app/')
+                        .reference()
+                        .child("users")
+                        .child(md5.convert(utf8.encode(gv.email)).toString())
+                        .once();
+                    int friends = int.parse(d.value["num_friends"].toString());
+                    
+                    dbRef.child("num_friends").set(++friends);
                   });
                 }
               },

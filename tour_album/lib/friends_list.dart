@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
-
+import 'package:tour_album/fullscreen.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:crypto/crypto.dart';
 import 'package:tour_album/model/FriendsModel.dart';
 import 'package:tour_album/friend_gallery.dart';
+import 'package:focused_menu/focused_menu.dart';
+import 'package:focused_menu/modals.dart';
 import 'global_vars.dart' as gv;
 
 // CODE ADAPTED FROM  https://github.com/PareshMayani/Flutter-Friends
@@ -19,7 +21,7 @@ class FriendsPage extends StatefulWidget {
 
 class FriendsState extends State<FriendsPage> {
   bool _isProgressBarShown = true;
-  final _biggerFont = const TextStyle(fontSize: 18.0);
+  final _biggerFont = const TextStyle(fontSize: 22.0);
   List<FriendsModel> _listFriends;
 
   @override
@@ -55,7 +57,6 @@ class FriendsState extends State<FriendsPage> {
   }
 
   getFriends() async {
-    List<FriendsModel> friends = [];
     final response = await FirebaseDatabase(
             databaseURL:
                 'https://touralbum2-39c64-default-rtdb.europe-west1.firebasedatabase.app/')
@@ -66,6 +67,7 @@ class FriendsState extends State<FriendsPage> {
         .once()
         .then((DataSnapshot dataSnapshot) async {
       Map newKey = dataSnapshot.value;
+      List<FriendsModel> friends = [];
       for (var k in newKey.keys) {
         var name = "";
         DataSnapshot d = await FirebaseDatabase(
@@ -105,26 +107,88 @@ class FriendsState extends State<FriendsPage> {
   }
 
   Widget _buildRow(FriendsModel friend) {
-    return new ListTile(
-      leading: new CircleAvatar(
-        backgroundImage: friend.url == null
-            ? AssetImage('images/b.jpg')
-            : NetworkImage(friend.url),
-        backgroundColor: Colors.grey,
-        // backgroundImage: new NetworkImage(friendsModel.profileImageUrl),
+    return FocusedMenuHolder(
+      menuWidth: MediaQuery.of(context).size.width * 0.48,
+      menuBoxDecoration: BoxDecoration(color: Colors.black),
+      onPressed: () {},
+      menuItems: <FocusedMenuItem>[
+        FocusedMenuItem(
+            title: Text(
+              "Delete",
+              style: TextStyle(color: Colors.blue),
+            ),
+            onPressed: () async {
+              await FirebaseDatabase(
+                      databaseURL:
+                          'https://touralbum2-39c64-default-rtdb.europe-west1.firebasedatabase.app/')
+                  .reference()
+                  .child("users")
+                  .child(md5.convert(utf8.encode(gv.email)).toString())
+                  .child("friends")
+                  .child(friend.email)
+                  .remove()
+                  .then((onValue) async {
+                print('Friend deleted');
+                DataSnapshot d = await FirebaseDatabase(
+                        databaseURL:
+                            'https://touralbum2-39c64-default-rtdb.europe-west1.firebasedatabase.app/')
+                    .reference()
+                    .child("users")
+                    .child(md5.convert(utf8.encode(gv.email)).toString())
+                    .once();
+                int friends = int.parse(d.value["num_friends"].toString());
+
+                await FirebaseDatabase(
+                        databaseURL:
+                            'https://touralbum2-39c64-default-rtdb.europe-west1.firebasedatabase.app/')
+                    .reference()
+                    .child("users")
+                    .child(md5.convert(utf8.encode(gv.email)).toString())
+                    .child("num_friends")
+                    .set(--friends);
+                setState(() {});
+              });
+            },
+            trailingIcon: Icon(
+              Icons.delete,
+              color: Colors.blue,
+            ),
+            backgroundColor: Colors.black),
+      ],
+      child: Material(
+        child: ListTile(
+          tileColor: Colors.grey[300],
+          leading: new GestureDetector(
+            onTap: () {
+              gv.image_url = friend.url;
+              Navigator.push(
+                  context,
+                  new MaterialPageRoute(
+                      builder: (context) => new FullScreenPage()));
+            },
+            child: new CircleAvatar(
+              backgroundImage: friend.url == null
+                  ? AssetImage('images/b.jpg')
+                  : NetworkImage(friend.url),
+              backgroundColor: Colors.grey,
+            ),
+          ),
+          title: new Text(
+            friend.name,
+            style: _biggerFont,
+          ),
+          onTap: () {
+            gv.friend_email = friend.email;
+            gv.friend_username = friend.name;
+            Navigator.push(
+                context,
+                new MaterialPageRoute(
+                    builder: (context) => new FriendGallery()));
+            print("friend tapped");
+            setState(() {});
+          },
+        ),
       ),
-      title: new Text(
-        friend.name,
-        style: _biggerFont,
-      ),
-      onTap: () {
-        gv.friend_email = friend.email;
-        gv.friend_username = friend.name;
-        Navigator.push(context,
-            new MaterialPageRoute(builder: (context) => new FriendGallery()));
-        print("friend tapped");
-        setState(() {});
-      },
     );
   }
 }

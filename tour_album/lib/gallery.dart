@@ -187,9 +187,9 @@ class _GridDemoPhotoItem extends State<GridDemoPhotoItem> {
                     "Delete",
                     style: TextStyle(color: Colors.blue),
                   ),
-                  onPressed: () {
-                    FirebaseStorage.instance.ref(this.widget.imgRef).delete();
-                    fbDB.remove().then((onValue) {
+                  onPressed: () async {
+                    await FirebaseStorage.instance.ref(this.widget.imgRef).delete();
+                    await fbDB.remove().then((onValue) {
                       print('Photo deleted');
                       this.widget.w.setState(() {});
                     });
