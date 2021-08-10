@@ -1,5 +1,5 @@
 # Flutter-TourAlbum
- This project was made for ICM class using flutter.
+ This project was made for ICM class using Flutter.
  
  ## Development Team:
       > Fábio Carmelino
