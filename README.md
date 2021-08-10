@@ -1,7 +1,7 @@
 # Flutter-TourAlbum
  This project was made for ICM class using Flutter.
  
- ![Profile Tab Image](https://github.com/FabioSparta/Flutter-TourAlbum/blob/master/Documents/ProfileTabScreenShot.jpg = 400x250)
+ ![Profile Tab Image](https://github.com/FabioSparta/Flutter-TourAlbum/blob/master/Documents/ProfileTabScreenShot.jpg | width=50)
  
  ## Development Team:
       > Fábio Carmelino
